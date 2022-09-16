@@ -11,8 +11,9 @@ func gen(numList []int) <-chan int {
 		for _, num := range numList {
 			out <- num
 		}
+		close(out)
 	}()
-	close(out)
+
 	return out
 }
 
@@ -42,8 +43,7 @@ func merge(done <-chan struct{}, cs ...<-chan int) <-chan int {
 		for n := range c {
 			select {
 			case out <- n:
-			case <-done:
-				return
+
 			}
 		}
 	}
@@ -60,6 +60,7 @@ func merge(done <-chan struct{}, cs ...<-chan int) <-chan int {
 	}()
 	return out
 }
+
 func main() {
 	// Set up a done channel that's shared by the whole pipeline,
 	// and close that channel when this pipeline exits, as a signal
